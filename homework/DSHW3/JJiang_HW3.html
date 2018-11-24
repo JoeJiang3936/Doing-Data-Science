@@ -171,14 +171,14 @@ func &lt;- function(x){
   sdRSES = sd(x$RSES, na.rm = TRUE)
   
   report &lt;- data.frame(medianAge, meanRSES/5, sdRSES/5, maxSleep-minSleep) 
-  colnames(x) &lt;- c(&quot;MedianAge&quot;, &quot;SelfEsteem&quot;, &quot;SE_SD&quot;,&quot;DurationRange&quot;)
+  colnames(report) &lt;- c(&quot;MedianAge&quot;, &quot;SelfEsteem&quot;, &quot;SE_SD&quot;,&quot;DurationRange&quot;)
   round(report, 2)
 }
 
 #Run the function
 func(df)</code></pre>
-<pre><code>##   medianAge meanRSES.5 sdRSES.5 maxSleep...minSleep
-## 1        14       3.62     1.24                   7</code></pre>
+<pre><code>##   MedianAge SelfEsteem SE_SD DurationRange
+## 1        14       3.62  1.24             7</code></pre>
 </div>
 <div id="question-4" class="section level3">
 <h3>Question 4</h3>
@@ -221,7 +221,8 @@ length(colnames(df))</code></pre>
 <pre><code>## [1] 21</code></pre>
 <pre class="r"><code># Use the count() function from dpylr package to get the count for each major category
 major_count &lt;- count(df, df$major_category)</code></pre>
-<pre class="r"><code>colnames(major_count) &lt;- c('majors','count')
+<pre class="r"><code># Plot the number of majors in each major categories
+colnames(major_count) &lt;- c('majors','count')
 major_count%&gt;%ggplot(aes(majors, count)) +
   geom_bar(stat = 'identity', color = &quot;blue&quot;, fill ='red')+
   theme(axis.text.x = element_text(angle = 60, hjust = 1))+

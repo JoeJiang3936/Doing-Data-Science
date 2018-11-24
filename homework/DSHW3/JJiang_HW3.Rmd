@@ -54,7 +54,7 @@ func <- function(x){
   sdRSES = sd(x$RSES, na.rm = TRUE)
   
   report <- data.frame(medianAge, meanRSES/5, sdRSES/5, maxSleep-minSleep) 
-  colnames(x) <- c("MedianAge", "SelfEsteem", "SE_SD","DurationRange")
+  colnames(report) <- c("MedianAge", "SelfEsteem", "SE_SD","DurationRange")
   round(report, 2)
 }
 
@@ -93,6 +93,7 @@ major_count <- count(df, df$major_category)
 ```
 
 ```{r fig.cap = "Fig. 3 Bar_plot showing the frequency of each major category", fig.align ="center", out.width = "60%"}
+# Plot the number of majors in each major categories
 colnames(major_count) <- c('majors','count')
 major_count%>%ggplot(aes(majors, count)) +
   geom_bar(stat = 'identity', color = "blue", fill ='red')+
