@@ -108,8 +108,7 @@ write.csv(df, file = "college_recent_grads.csv", row.names = FALSE)
 ```
 
 ### Question 6
-
-
+  The link to MSDS homework repo: https://github.com/JoeJiang3936/Doing-Data-Science/homework/
 
 
 
