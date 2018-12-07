@@ -167,8 +167,28 @@ tail(y2015, 10)</code></pre>
 ## 33062     Zyrus      M                5
 ## 33063      Zyus      M                5</code></pre>
 <p><strong>From the last 10 rows, we can speculate that the table is likely sorted in the order of gender, number of children and first name.</strong></p>
-<pre class="r"><code>final &lt;- merge(y2016, y2015, by= &quot;FirstName&quot;)
-names(final)[names(final) == 'Gender.x'] &lt;- 'Gender'</code></pre>
+<pre class="r"><code>final &lt;- merge(y2016, y2015, by= c(&quot;FirstName&quot;,&quot;Gender&quot;))
+names(final) &lt;- c('FirstName','Gender','2016','2015')</code></pre>
+</div>
+<div id="question-3" class="section level3">
+<h3>Question 3</h3>
+<pre class="r"><code>final$Total &lt;- final$'2015' + final$'2016' #combine the amount of children born in 2015 and 2016
+paste0(&quot;The total number of children with popular names = &quot;, sum(final$Total)) </code></pre>
+<pre><code>## [1] &quot;The total number of children with popular names = 7239231&quot;</code></pre>
+<pre class="r"><code>final &lt;- final[order(final$Total, decreasing = TRUE),] #sort the table by total amount of children
+head(final, 10) #display the top ten popular names</code></pre>
+<pre><code>##       FirstName Gender  2016  2015 Total
+## 8290       Emma      F 19414 20415 39829
+## 19886    Olivia      F 19246 19638 38884
+## 19594      Noah      M 19015 19594 38609
+## 16114      Liam      M 18138 18330 36468
+## 23273    Sophia      F 16070 17381 33451
+## 3252        Ava      F 16237 16340 32577
+## 17715     Mason      M 15192 16591 31783
+## 25241   William      M 15668 15863 31531
+## 10993     Jacob      M 14416 15914 30330
+## 10682  Isabella      F 14722 15574 30296</code></pre>
+<pre class="r"><code>write.csv(head(final[final$Gender =='F',c(&quot;FirstName&quot;,&quot;Total&quot;)], 10), 'Top10GirlNames.csv', row.names = FALSE)</code></pre>
 </div>
 
 

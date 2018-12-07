@@ -32,6 +32,14 @@ tail(y2015, 10)
 final <- merge(y2016, y2015, by= c("FirstName","Gender"))
 names(final) <- c('FirstName','Gender','2016','2015')
 ```
+### Question 3
+```{r toal amount of children born with the same name in 2015 and 2016 }
+final$Total <- final$'2015' + final$'2016' #combine the amount of children born in 2015 and 2016
+paste0("The total number of children with popular names = ", sum(final$Total)) 
+final <- final[order(final$Total, decreasing = TRUE),] #sort the table by total amount of children
+head(final, 10) #display the top ten popular names
+write.csv(head(final[final$Gender =='F',c("FirstName","Total")], 10), 'Top10GirlNames.csv', row.names = FALSE)
+```
 
 
 
