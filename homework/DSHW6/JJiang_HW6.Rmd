@@ -1,0 +1,80 @@
+---
+title: "JJiang_HW6"
+author: "Joe Jiang"
+date: "December 13, 2018"
+output:
+  html_document: default
+  pdf_document: default
+link: https://github.com/JoeJiang3936/Doing-Data-Science/tree/master/homework/DSHW6
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+setwd("C:/Users/Hannah/Desktop/Courses/Doing Data Science/Doing-Data-Science/homework/DSHW6")
+```
+
+
+### Question 1 Load a data set on Mental Health Clinics in the United States in 2015 and perform EDA (exploratory data analysis)  
+
+```{r lists the State abbreviations}
+load("C:/Users/Hannah/Desktop/Courses/Doing Data Science/Doing-Data-Science/homework/DSHW6/N-MHSS-2015-DS0001-data/N-MHSS-2015-DS0001-data-r.rda")
+print("The list of states:")
+unique(mh2015_puf$LST)
+```
+**Remove HI, AK and other US territories not in mainland, select VA facilities and count the number of VA facilities in each state**
+
+```{r filter to select mainland VA facilities}
+VAHospitals <- mh2015_puf%>%filter(!(LST %in% c('HI    ', 'AK    ', 'AS    ', 'GU    ', 'VI    ', 'PR    ')) & PUBLICAGENCY == 'Department of Veterans Affairs')%>%group_by(LST)%>%summarize('Number_VA_Facility' = n())
+colnames(VAHospitals)[1] <- 'States' #rename the colomn 'LST' to 'States'
+head(VAHospitals, 10)
+``` 
+
+**plot number of VA facilities by state using ggplot2**
+
+```{r plot number of VA facilities by State using ggplot2}
+VAHospitals%>%ggplot(aes(States, Number_VA_Facility))+
+  geom_bar(stat = 'identity', aes(fill = States))+
+  theme(legend.position = 'None')+
+  xlab('Lower 48 States and DC')+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4))+
+  ylab('Number of VA Facilities')+
+  ggtitle('Number of VA hospitals in lower 48 states and DC')+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Question 2, plot the number of VA hospitals by areas for each state
+
+**Merge two data frames and add a new column in the new data frame**
+
+```{r load a csv file containing areas for each state}
+statesize <- read.csv('./homework/DSHW6/statesize.csv')
+VAStateSize<- merge(x = VAHospitals, y = statesize, by.x='States', by.y = 'Abbrev')
+head(VAStateSize)
+paste(VAHospitals$States)
+paste(statesize$Abbrev)
+VAHospitals$States <- gsub(" ", "", VAHospitals$States) # Remove space in States columns
+VAStateSize<- merge(x = VAHospitals, y = statesize, by.x='States', by.y = 'Abbrev')
+head(VAStateSize)
+VAStateSize <- VAStateSize%>%mutate(VAPer1kSqMiles = 1000*Number_VA_Facility/SqMiles)
+head(VAStateSize) #add a column for number of VA facilities per 1000 Sq miles
+```
+
+**Plot number of VA facilities/1000 Sq miles using ggplot2**
+
+```{r plot number of VA facilities/1000 Sq miles using ggplot2}
+VAStateSize%>%ggplot(aes(x= reorder(States, -VAPer1kSqMiles), VAPer1kSqMiles))+
+  geom_bar(stat = 'identity', aes(fill = Region))+
+  scale_fill_manual(values=c("red", "blue", "dark green","orange"))+
+  theme(legend.position = c(0.9, 0.8))+
+  xlab('Lower 48 States and DC')+
+  theme(axis.text.x = element_text(angle = 90, vjust = .4))+
+  ylab('VA Facilities Per 1000 Sq Miles')+
+  ggtitle('Number of VA hospitals per 1000 sq miles')+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+**Conclusions and recommendations: From the plot, we can see that the Northeast region has has the highest VA facilities per area and the west region has the lowest VA facilities per area. Thus we recommand more future VA facilities to be built in the west region of United States.**
+
+
+
