@@ -1,0 +1,51 @@
+---
+title: "CaseStudy1"
+author: "Joe Jiang" "Karl Jurek" "Travis Daun"
+date: "December 16, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r load two beer datasets}
+beers <- read.csv("Beers.csv")
+breweries <- read.csv("Breweries.csv")
+BreweryByState <- breweries%>%group_by(State)%>%summarize('NumberOfBreweries' = n())
+BreweryByState <- BreweryByState%>%mutate_if(is.factor, as.character)
+BreweryByState$State <- gsub(" ", "", BreweryByState$State)
+```
+
+```{r plot number of breweries by each state using ggplot }
+BreweryByState%>%ggplot(aes(x= reorder(State, -NumberOfBreweries), NumberOfBreweries))+
+  geom_bar(stat = 'identity', aes(fill = State))+
+  theme(legend.position = 'None')+
+  xlab('States')+
+  theme(axis.text.x = element_text(angle = 90, vjust = .4))+
+  ylab('Number of Breweries in each state')+
+  ggtitle('Number of Breweries in United States')+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r map with breweries by each state}
+library(tidyverse)
+library(urbnmapr)
+states <- urbnmapr::states
+BreweryMap <- merge(x = states, y = BreweryByState, by.x='state_abbv', by.y = 'State')
+BreweryMap%>%ggplot(aes(x = long, y = lat)) + 
+  geom_polygon(aes(fill = NumberOfBreweries, group =group)) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45)
+```
+
+```{r merge two dataframes}
+BeersBreweries <- merge(x = beers, y = breweries, by.x='Brewery_id', by.y = 'Brew_ID')
+colnames(BeersBreweries)[2] <- "Name"
+colnames(BeersBreweries)[8] <- "Brewery"
+head(BeersBreweries,6)
+tail(BeersBreweries, 6)
+```
+
+
