@@ -1,0 +1,109 @@
+---
+title: "JJiang_DDSHW12"
+author: "Joe Jiang"
+date: "February 9, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(fpp2)
+library(dygraphs)
+library(xts)
+```
+
+###This is an R Markdown document for Doing Data Science Class homework 12 on time series. 
+
+##Question 1 DAX Index time series
+
+```{r plot DAX Index time series from 1991 to 1999}
+#Scatter plot of the original DAX Index time series
+ts.plot(EuStockMarkets[,1], col = 'blue', xlab = "Year", ylab = "DAX Index",  main = "DAX Stock Market Indices, 1991-1999")
+abline(v = 1997, col='red')
+```
+
+```{r decompose the time series into its components, including trend, seasonal and random}
+#Slicing the time series to include only the DAX column
+dax <- EuStockMarkets[, 1]
+
+#decompose DAX Indices
+dax1 <- decompose(dax, type = "multiplicative")
+
+#plot the trend 
+ts.plot(dax1$trend, col = 'blue', xlab = "Year", ylab = "DAX Indices",  main = "DAX Indices Trend, 1991-1999")
+abline(v = 1997, col='red')
+
+#plot the seasonal component 
+ts.plot(dax1$seasonal, col = 'blue', xlab = "Year", ylab = "DAX Indices Seasonal Component",  main = "Seasonal Component of DAX Indices, 1991-1999")
+abline(v = 1997, col='red')
+
+#plot the random component
+ts.plot(dax1$random, col = 'blue', xlab = "Year", ylab = "DAX Indices Random Component",  main = "Random Component of DAX Indices, 1991-1999")
+abline(v = 1997, col='red')
+```
+
+
+##Question 2 Melbourne Max Temperature Time Series
+
+```{r modeling of tempterature time series using SES and Holt methods}
+
+#slicing the time series to include only data from 1990 to 2016
+maxtemp1 <- window(maxtemp, 1990, 2016)
+
+#Use simple exponential smoothing method to predict temperature in Melbourne
+fit <- ses(maxtemp1,h=5)
+
+#plot origianl and fitted time series, 5 year prediction     
+plot(fit, PI= FALSE, xlab = 'Year', ylab='Temperature', main = 'Max Temperature in Melbourne/SES prediction', fcol = 'white')
+lines(fitted(fit), col = "blue")
+lines(fit$mean, col = "blue")
+legend('topleft', lty =1, col =c(1, 'blue'), c("data", "SES"))
+
+#AIC and Bic scores
+fit$model
+
+#Use damped Holt's linear trend to predict temperature in Melbourne 
+fit2 = holt(maxtemp1, h=5, damped = TRUE, initial ='optimal')
+
+#plot original and fitted time series, and 5 year prediction  
+plot(fit2, PI= FALSE, xlab = 'Year', ylab='Temperature', main = 'Max Temperature in Melbourne/damped Holt\'s prediction', fcol = 'white')
+lines(fitted(fit2), col = "blue")
+lines(fit$mean, col = "blue")
+legend('topleft', lty =1, col =c(1, 'blue'), c("data", "Holt"))
+
+#AIC and BIC scores
+fit2$model
+
+print("The AICc score from the SES model is slightly better than Holt deamped linear model (141.5 vs 145.6)")
+```
+
+##Question 3 The wands choose the wizard
+
+```{r}
+
+#read in two time series for Wands sold over the years
+Ollivander <- read.csv("UNit12TimeSeries_Ollivander.csv", header = FALSE)
+Gregorovitch <- read.csv("Unit12TimeSeries_Gregorovitch.csv", header = FALSE)
+
+#convert data into time series and combine the two datasets and rename columns
+Ollivander$V1 <- as.Date(Ollivander$V1, "%m/%d/%Y")
+OllivanderTS <- xts(Ollivander, order.by = Ollivander$V1)
+Gregorovitch$V1 <- as.Date(Gregorovitch$V1, "%m/%d/%Y")
+GregorovitchTS <- xts(Gregorovitch, order.by = Gregorovitch$V1)
+wandTS <- cbind(OllivanderTS, GregorovitchTS)
+wandTS <- wandTS[,c(0, 2, 4)]
+colnames(wandTS) = c('Ollivander', 'Gregorovitch')
+
+#generate dygraph
+dygraph(wandTS, xlab = "Year", ylab = 'Number of Wands sold', main = "Wands sold from 1970 to 2017") %>%
+  dySeries("Ollivander", drawPoints = TRUE, color = "blue") %>%
+  dySeries("Gregorovitch", drawPoints = TRUE, color = "red") %>%
+  dyRangeSelector(dateWindow = c("1970-01-01", "2017-01-01")) %>% 
+  dyShading(from="1995-01-01", to="1999-01-01", color = "grey")%>%
+  dyHighlight(highlightCircleSize = 5, 
+              highlightSeriesOpts = list(strokeWidth = 3),
+              highlightSeriesBackgroundAlpha = 0.2,
+              hideOnMouseOut = FALSE)
+```
+
+

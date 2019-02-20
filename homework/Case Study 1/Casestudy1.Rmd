@@ -19,7 +19,7 @@ BreweryByState <- BreweryByState%>%mutate_if(is.factor, as.character)
 BreweryByState$State <- gsub(" ", "", BreweryByState$State)
 ```
 
-```{r plot number of breweries by each state using ggplot }
+```{r plot number of breweries by each state using ggplot}
 BreweryByState%>%ggplot(aes(x= reorder(State, -NumberOfBreweries), NumberOfBreweries))+
   geom_bar(stat = 'identity', aes(fill = State))+
   theme(legend.position = 'None')+
@@ -47,5 +47,8 @@ colnames(BeersBreweries)[8] <- "Brewery"
 head(BeersBreweries,6)
 tail(BeersBreweries, 6)
 ```
+
+
+
 
 
